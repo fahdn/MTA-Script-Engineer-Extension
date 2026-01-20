@@ -1,0 +1,152 @@
+import * as vscode from 'vscode';
+import { XMLParser } from 'fast-xml-parser';
+import * as path from 'path';
+
+// --- THE CACHE ---
+// Key: Resource Name (string)
+// Value: List of Completion Items
+const exportCache = new Map<string, vscode.CompletionItem[]>();
+
+export function activate(context: vscode.ExtensionContext) {
+    
+    // 1. Register the Completion Provider
+    const provider = vscode.languages.registerCompletionItemProvider(
+        'lua',
+        {
+            provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+                return getExportCompletions(document, position);
+            }
+        },
+        ':' 
+    );
+
+    // 2. Register File Watchers to clear cache on changes
+    // If any meta.xml or .lua file changes, we invalidate the cache for that resource.
+    const watcher = vscode.workspace.createFileSystemWatcher('**/*');
+    
+    watcher.onDidChange((uri) => invalidateCache(uri));
+    watcher.onDidCreate((uri) => invalidateCache(uri));
+    watcher.onDidDelete((uri) => invalidateCache(uri));
+
+    context.subscriptions.push(provider, watcher);
+}
+
+// Helper to remove entries from cache when files change
+function invalidateCache(uri: vscode.Uri) {
+    // We try to guess the resource name from the folder structure.
+    // Usually: .../resources/[gameplay]/resourceName/script.lua
+    
+    // Simple approach: Clear the entire cache if you want to be safe, 
+    // or try to find the specific resource name. 
+    // For safety and simplicity, let's clear the specific resource if possible.
+    
+    const parts = uri.fsPath.split(path.sep);
+    // Resource name is usually the parent folder of meta.xml, or parent of the script
+    // We can just loop through our cache keys and see if the file path contains the key.
+    
+    for (const resourceName of exportCache.keys()) {
+        if (uri.fsPath.includes(path.sep + resourceName + path.sep)) {
+            console.log(`[Nitro] Clearing cache for: ${resourceName}`);
+            exportCache.delete(resourceName);
+        }
+    }
+}
+
+async function getExportCompletions(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionList | vscode.CompletionItem[]> {
+    const linePrefix = document.lineAt(position).text.substr(0, position.character);
+
+    const regex = /exports\.(\w+):$|exports\['(.*?)'\]:$/;
+    const match = linePrefix.match(regex);
+
+    if (!match) return [];
+
+    const resourceName = match[1] || match[2];
+    if (!resourceName) return [];
+
+    // --- CACHE HIT ---
+    // If we already parsed this resource, return it immediately!
+    if (exportCache.has(resourceName)) {
+        console.log(`[Nitro] Serving ${resourceName} from CACHE.`);
+        return new vscode.CompletionList(exportCache.get(resourceName)!, false);
+    }
+
+    // --- CACHE MISS (Do the heavy lifting) ---
+    console.log(`[Nitro] Parsing ${resourceName} from DISK...`);
+
+    const metaFiles = await vscode.workspace.findFiles(`**/${resourceName}/meta.xml`, '**/node_modules/**', 1);
+    if (metaFiles.length === 0) return [];
+
+    const metaUri = metaFiles[0];
+    const resourceRoot = path.dirname(metaUri.fsPath);
+
+    try {
+        const fileData = await vscode.workspace.fs.readFile(metaUri);
+        const xmlContent = Buffer.from(fileData).toString('utf8');
+        
+        const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
+        const result = parser.parse(xmlContent);
+        const root = result.meta;
+
+        if (!root || !root.export) return [];
+
+        const completionItems: vscode.CompletionItem[] = [];
+        const exports = Array.isArray(root.export) ? root.export : [root.export];
+        const scripts = root.script ? (Array.isArray(root.script) ? root.script : [root.script]) : [];
+
+        const scriptFiles = scripts
+            .filter((s: any) => s.src && s.src.endsWith('.lua'))
+            .map((s: any) => s.src);
+
+        for (const exp of exports) {
+            if (exp.function) {
+                const functionName = exp.function;
+                const type = exp.type || 'shared';
+
+                // Scan scripts for arguments
+                const args = await findFunctionArguments(resourceRoot, scriptFiles, functionName);
+                
+                const item = new vscode.CompletionItem(functionName, vscode.CompletionItemKind.Method);
+                item.sortText = `!${functionName}`; 
+                item.detail = `${functionName}(${args}) : ${type}`;
+                item.documentation = new vscode.MarkdownString(
+                    `**Exported Function**\n\n\`${resourceName}:${functionName}(${args})\`\n\nType: _${type}_`
+                );
+                item.insertText = new vscode.SnippetString(`${functionName}(${args})$0`);
+
+                completionItems.push(item);
+            }
+        }
+
+        // --- SAVE TO CACHE ---
+        exportCache.set(resourceName, completionItems);
+
+        return new vscode.CompletionList(completionItems, false);
+
+    } catch (error) {
+        console.error(`Error parsing meta.xml for ${resourceName}:`, error);
+        return [];
+    }
+}
+
+async function findFunctionArguments(resourceRoot: string, scriptFiles: string[], functionName: string): Promise<string> {
+    const funcRegex = new RegExp(`function\\s+${functionName}\\s*\\(([^)]*)\\)`);
+
+    for (const scriptFile of scriptFiles) {
+        try {
+            const scriptPath = path.join(resourceRoot, scriptFile);
+            const scriptUri = vscode.Uri.file(scriptPath);
+            const fileData = await vscode.workspace.fs.readFile(scriptUri);
+            const content = Buffer.from(fileData).toString('utf8');
+            const match = content.match(funcRegex);
+            
+            if (match) {
+                return match[1].replace(/\s+/g, ' ').trim();
+            }
+        } catch (e) { }
+    }
+    return '';
+}
+
+export function deactivate() {
+    exportCache.clear();
+}

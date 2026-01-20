@@ -1,0 +1,145 @@
+{
+	"Call Exported Function": {
+		"scope": "lua",
+		"prefix": "exports",
+		"body": [
+			"exports.${1:resourceName}:${2:functionCall}($3)"
+		],
+		"description": "Call an exported API function from another resource"
+	},
+	
+	"Output Message in Chat (Server-Side)": {
+		"scope": "lua",
+		"prefix": "cx",
+		"body": [
+			"outputChatBox(\"$1\", ${2:player}, 255,255,255)"
+		],
+		"description": "Output a message to chat on server-side"
+	},
+	"Output Formatted Message in Chat (Server-Side)": {
+		"scope": "lua",
+		"prefix": "cxformat",
+		"body": [
+			"outputChatBox((\"$1\"):format($2), ${3:player}, 255,255,255)"
+		],
+		"description": "Output a formatted message to chat on server-side"
+	},
+	"Output Message in Chat (Client-Side)": {
+		"scope": "lua",
+		"prefix": "cxx",
+		"body": [
+			"outputChatBox(\"$1\", 255,255,255)"
+		],
+		"description": "Output a message to chat on client-side"
+	},
+	"Output Formatted Message in Chat (Client-Side)": {
+		"scope": "lua",
+		"prefix": "cxxformat",
+		"body": [
+			"outputChatBox((\"$1\"):format($2), 255,255,255)"
+		],
+		"description": "Output a formatted message to chat on client-side"
+	},
+	"MTA Database Query (dbQuery)": {
+		"scope": "lua",
+		"prefix": "dbquery",
+		"body": [
+			"dbQuery(",
+			"\tfunction(qh, $5)",
+			"\t\tlocal result, rowsAffected, lastInsertedId = dbPoll( qh, 0)",
+			"\t\tif rowsAffected > 0 then",
+			"\t\t\t$6",
+			"\t\telse",
+			"\t\t\t$7",
+			"\t\tend",
+		"\tend",
+		",{$4}, ${1:connection}, \"${2:SELECT * FROM table_name WHERE column=?}\", ${3:arguments} )"
+		],
+		"description": "Execute a database query and retrieve rows affected and last inserted ID"
+	},
+	"MTA Database Query for OwlGaming GameMode": {
+		"scope": "lua",
+		"prefix": "dbqueryowl",
+		"body": [
+			"dbQuery(",
+			"\tfunction(qh, $5)",
+			"\t\tlocal result, rowsAffected, lastInsertedId = dbPoll( qh, 0)",
+			"\t\tif rowsAffected > 0 then",
+			"\t\t\t$6",
+			"\t\telse",
+			"\t\t\t$7",
+			"\t\tend",
+		"\tend",
+		",{$4}, exports.mysql:getConn(\"$1\"), \"${2:SELECT * FROM table_name WHERE column=?}\", ${3:arguments} )"
+		],
+		"description": "Execute a database query for OwlGaming gamemode and retrieve rows affected and last inserted ID"
+	},
+	"Initialize a New Event": {
+		"scope": "lua",
+		"prefix": "initevent",
+		"body": [
+			"addEvent(\"$1\", ${2:true})",
+			"addEventHandler(\"$1\", ${3:root}, function(${4:params})",
+			"\t$5",
+			"end)"
+		],
+		"description": "Initialize a new custom event with handler"
+	},
+	"Trigger Server Event": {
+		"scope": "lua",
+		"prefix": "triggerserverevent",
+		"body": [
+			"triggerServerEvent(\"${1:event}\", ${2:sourceElement}, ${3:args})"
+		],
+		"description": "Trigger a server event from client-side"
+	},
+	"Trigger Client Event": {
+		"scope": "lua",
+		"prefix": "triggerclientevent",
+		"body": [
+			"triggerClientEvent(${1:sendTo_Can_Be_Table},\"${2:event}\", ${3:sourceElement}, ${4:args})"
+		],
+		"description": "Trigger a client event from server-side"
+	},
+	"String Formatting Shortcut": {
+		"scope": "lua",
+		"prefix": "format",
+		"body": [
+			"(\"$1\"):format($2)"
+		],
+		"description": "Format a string using Lua's string.format syntax"
+	},
+	"Add Command Handler (Client-Side)": {
+		"scope": "lua",
+		"prefix": "addcommandhandlerclient",
+		"body": [
+			"addCommandHandler(\"$1\", function (commandName, ${2:args})",
+			"\t$3",
+			"end)"
+		],
+		"description": "Add a command handler on client-side"
+	},
+
+	"Add Command Handler (Server-Side)": {
+		"scope": "lua",
+		"prefix": "addcommandhandlerserver",
+		"body": [
+			"addCommandHandler(\"$1\", function (thePlayer, commandName, ${2:args})",
+			"\t$3",
+			"end)"
+		],
+		"description": "Add a command handler on server-side"
+	},
+	"Add Event Handler": {
+		"scope": "lua",
+		"prefix": "addeventhandler",
+		"body": [
+			"addEventHandler(\"$1\", ${2:root},function (${3:params})",
+			"\t$4",
+			"end)"
+		],
+		"description": "Add an event handler for a game event"
+	}
+
+
+}
