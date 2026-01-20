@@ -7,7 +7,7 @@ import * as path from 'path';
 const exportCache = new Map<string, vscode.CompletionItem[]>();
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('MTA SA Nitro: Active');
+    console.log('MTA SA Script Engineer: Active');
 
     // 1. Autocomplete Provider (Triggered by ':')
     const completionProvider = vscode.languages.registerCompletionItemProvider(

@@ -4,11 +4,11 @@
     <img src="images/icon.png" alt="MTA:SA Script Engineer Logo" width="128" height="128">
     <br>
     <br>
-    <a href="https://marketplace.visualstudio.com/items?itemName=YOUR_PUBLISHER.mta-sa-productivity">
-        <img src="https://img.shields.io/visual-studio-marketplace/v/YOUR_PUBLISHER.mta-sa-productivity?color=orange&label=VS%20Code%20Marketplace" alt="Version">
+    <a href="https://marketplace.visualstudio.com/items?itemName=MTAScriptEngineer.mta-sa-productivity">
+        <img src="https://img.shields.io/visual-studio-marketplace/v/MTAScriptEngineer.mta-sa-productivity?color=orange&label=VS%20Code%20Marketplace" alt="Version">
     </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=YOUR_PUBLISHER.mta-sa-productivity">
-        <img src="https://img.shields.io/visual-studio-marketplace/i/YOUR_PUBLISHER.mta-sa-productivity?color=blue&label=Installs" alt="Installs">
+    <a href="https://marketplace.visualstudio.com/items?itemName=MTAScriptEngineer.mta-sa-productivity">
+        <img src="https://img.shields.io/visual-studio-marketplace/i/MTAScriptEngineer.mta-sa-productivity?color=blue&label=Installs" alt="Installs">
     </a>
 </div>
 

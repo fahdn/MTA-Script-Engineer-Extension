@@ -3,8 +3,12 @@
   "displayName": "MTA Script Engineer",
   "description": "Autocompletion for MTA:SA exported functions",
   "publisher": "MTAScriptEngineer",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/fahdn/MTA-Script-Engineer-Extension"
+  },
   "icon": "images/icon.png",
-  "version": "0.0.1",
+  "version": "0.0.15",
   "engines": {
     "vscode": "^1.108.1"
   },
