@@ -14,7 +14,7 @@
 
 <br>
 
-**MTA:SA Script Engineer** is the ultimate toolkit for Multi Theft Auto developers. It supercharges your workflow by providing intelligent autocompletion for `exports`, instant "Go to Definition" navigation, and essential code snippets—all designed to keep you in the flow state.
+**MTA:SA Script Engineer** is a VSCode Extension the ultimate toolkit for Multi Theft Auto developers. It supercharges your workflow by providing intelligent autocompletion for `exports`, instant "Go to Definition" navigation, and essential code snippets—all designed to keep you in the flow state.
 
 No more checking `meta.xml` manually. No more guessing function arguments.
 
